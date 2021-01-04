@@ -1,0 +1,1 @@
+web: sh setup.sh && streamlit run met_rep_corr.py
