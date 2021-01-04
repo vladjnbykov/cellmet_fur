@@ -8,7 +8,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt 
 import plotly.express as px
 import codecs
-
+import statsmodels
 
 def render_html(file,height=700,width=700):
 	html_file = codecs.open(file,'r')
