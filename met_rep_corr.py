@@ -9,6 +9,10 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import codecs
 import statsmodels
+from PIL import Image
+
+# wide screen layout
+st.set_page_config(layout="wide")
 
 def render_html(file,height=700,width=700):
 	html_file = codecs.open(file,'r')
@@ -16,7 +20,7 @@ def render_html(file,height=700,width=700):
 	stc.html(page,width=width,height=height,scrolling=True)
 
 #st.title("Cellular metabolism in response to treatment with drugs")
-stc.html("<h1 style='color:blue;'>Cell metabolic response to treatment</h1>",height=80)
+stc.html("<h1 style='color:blue;'>Cell metabolic response to treatment</h1>", height=80)
 stc.html("<h4 style='color:rgb(30,0,200);'>Overview, scaled data</h4>", height = 40)
 
 #@st.cache
@@ -29,100 +33,232 @@ def main():
 	if status == "control":
  		tr_sel = "control"
 	elif status == "G418":
- 		tr_sel = "G418"
+		tr_sel = "G418"
 	elif status == "5-FU":
- 		tr_sel = "5-FU"
+		tr_sel = "5-FU"
 	elif status == "5-FUR":
- 		tr_sel = "5-FUR" 
+		tr_sel = "5-FUR"
 	elif status == "5-FdUR":
- 		tr_sel = "5-FdUR" 	
+		tr_sel = "5-FdUR"
 	elif status == "Pseudouridine":
- 		tr_sel = "PSU" 	
+		tr_sel = "PSU"
 	else:
 		tr_sel = "control" 
 
 
 	# Slider 
 	# Numbers (Int/Float/Dates)
-	time_sel = st.sidebar.slider("Specify duration of treatment, days",1,3)
+	time_sel = st.sidebar.slider("Specify duration of treatment, days",0,3)
 
 	st.success("{} treatment for {} day(s)".format(status, time_sel))
 
-	#
-	df_sc1 = pd.read_csv("df_sc1.csv")
-	labels = ['G418', '5-FU', '5-FUR', '5-FdUR', 'U', 'PSU', 'inosine',
-       	'GSH', 'GSSG', 'glutamine']
+	# Layout for introductory columns
+	left_column, right_column = st.columns((1,3))
+	with left_column: 
+	# Show structural formula of the selected compound
+		if tr_sel == "G418":
+			image = Image.open('./images/G418.png')
+			st.image(image, width=150)
+		elif tr_sel == "5-FU":
+			image = Image.open('./images/Fluorouracil.png')
+			st.image(image, width=80)
+		elif tr_sel == "5-FUR":
+			image = Image.open('./images/Fluorouridine.png')
+			st.image(image, width=120)
+		elif tr_sel == "5-FdUR":
+			image = Image.open('./images/FdUR.png')
+			st.image(image, width=120)
+		elif tr_sel == "PSU":
+			image = Image.open('./images/Pseudouridine.png')
+			st.image(image, width=120)
+	
+	with right_column:
+	# Short description of the tested substances
+		if tr_sel == "G418":
+			stc.html("""<p style='color:rgb(28, 0, 138); margin-top:0; padding-left:10px; text-align:justify;'>
+			<a style='text-decoration: none; font-weight: bold;' href = 'https://en.wikipedia.org/wiki/G418', 
+			target='_blank'>G418/geneticin</a>, 
+			aminoglycoside antibiotic, blocks polypeptide biosynthesis in procariotes and eucariotes. 
+			Paradoxically it also known as <a style='text-decoration: none; font-weight: bold;' 
+			href = 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5754804/' target='_blank'>inducer of translational 
+			reading through premature termination codons </a> by binding to ribosomal 
+			RNA in the ribosome decoding center.</p>""", height=120)
+
+		elif tr_sel == "5-FU":
+			stc.html("""<p style='color:rgb(28, 0, 138); margin-top:0; padding-left:10px; text-align:justify;'>
+			<a style='text-decoration: none; font-weight: bold;' href = 'https://en.wikipedia.org/wiki/Fluorouracil', 
+			target='_blank'>5-Fluorouracil</a>, 
+			cancer medication, widely used in chemotherapy since 1950s. Mechanism of action is coupled 
+			to its metabolism to Fluorouridine which incorporates to RNA 
+			instead of uridine; and to Fluorodeoxyuridine which both inhibits thymidylate sythase, 
+			thus blocking DNA synthesis and incorporates to DNA instead of thymidine 
+			triggering DNA damage signalling cascade. Both metabolites are interconvertible</p>""", height=150)
+			
+		elif tr_sel == "5-FUR":
+			stc.html("""<p style='color:rgb(28, 0, 138); margin-top:0; padding-left:10px; text-align:justify;'>
+			<a style='text-decoration: none; font-weight: bold;' href = 'https://pubchem.ncbi.nlm.nih.gov/compound/5-Fluorouridine', 
+			target='_blank'>5-Fluorouridine</a>, 
+			active metabolite of 5-Fluorouracil, converts to Fluorodeoxyuridine and inhibits thymidylate synthase thus humpering DNA synthesis 
+			and cell proliferation; and also it incorporates to RNA instead of uridine.</p>""", height=150)
+
+		elif tr_sel == "5-FdUR":
+			stc.html("""<p style='color:rgb(28, 0, 138); margin-top:0; padding-left:10px; text-align:justify;'>
+			<a style='text-decoration: none; font-weight: bold;' href = 'https://pubchem.ncbi.nlm.nih.gov/compound/floxuridine', 
+			target='_blank'>5-Fluorodeoxyuridine/ Floxuridine</a>, 
+			active metabolite of 5-Fluorouracil, interconvertable to 5-Fluorouridine, inhibits thymidylate synthase 
+			thus humpering DNA synthesis and cell proliferation; and incorporates to DNA instead of thymine and triggers 
+			DNA damage signalling cascade.</p>""", height=150)
+
+		elif tr_sel == "PSU":
+			stc.html("""<p style='color:rgb(28, 0, 138); margin-top:0; padding-left:10px; text-align:justify;'>
+			<a style='text-decoration: none; font-weight: bold;' href = 'https://en.wikipedia.org/wiki/Pseudouridine', 
+			target='_blank'>Pseudouridine</a>, 
+			structural isomer of uridine, most abundant RNA modification in human cells. Due to more rotational 
+			freedom of uracil moiety it likely to have contribution to RNA structure and stability. 
+			In mRNA it is known to reduce stringency of STOP codons recognition.</p>""", height=120)
 
 
-	values = df_sc1.loc[(df_sc1["samples"] == tr_sel) & (df_sc1["time"] == time_sel)].values.flatten().tolist()
-	# slice df to remove extra generated values
-	values = values[2:]
-	# Number of variables we're plotting
-	num_vars = len(labels)
+	# METABOLISM IN THE MEDIA: Radar plot
 
-	# Split the circle into even parts and save the angles
-	# so we know where to put each axis.
-	angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
-	values += values[:1]
-	angles += angles[:1]
+	df_media_sc = pd.read_csv("./data/media_total_sc.csv")
+	labels = ['m-G418', 'm-5FU', 'm-5FUR', 'm-5FdUR', 'm-U', 'm-PSU', 'm-inosine',
+       	'm-GSH', 'm-glutamine']
 
-	fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
-	# Draw the outline of our data.
+	left_column, right_column = st.columns((1,1))
+	with left_column: 
 
-	ax.plot(angles, values, color='blue', linewidth=1)
-	# Fill it in.
-	ax.fill(angles, values, color='blue', alpha=0.1)
-	# Fix axis to go in the right order and start at 12 o'clock.
-	ax.set_theta_offset(np.pi / 2)
-	ax.set_theta_direction(-1)
-	# Draw axis lines for each angle and label.
-	ax.set_thetagrids(np.degrees(angles), labels)
-	# Go through labels and adjust alignment based on where
-	# it is in the circle.
-	for label, angle in zip(ax.get_xticklabels(), angles):
-	  if angle in (0, np.pi):
-	    label.set_horizontalalignment('center')
-	  elif 0 < angle < np.pi:
-	    label.set_horizontalalignment('left')
-	  else:
-	    label.set_horizontalalignment('right')
+		values = df_media_sc.loc[(df_media_sc["samples"] == tr_sel) & (df_media_sc["time"] == time_sel)].values.flatten().tolist()
+		values = values[2:]
+		num_vars = len(labels)
+
+		angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+		values += values[:1]
+		angles += angles[:1]
+
+		fig, ax = plt.subplots(figsize=(4, 4), subplot_kw=dict(polar=True))
+
+		ax.plot(angles, values, color='blue', linewidth=1)
+		ax.fill(angles, values, color='blue', alpha=0.1)
+		ax.set_theta_offset(np.pi / 2)
+		ax.set_theta_direction(-1)
+		ax.set_thetagrids(np.degrees(angles), labels)
+
+		for label, angle in zip(ax.get_xticklabels(), angles):
+			if angle in (0, np.pi):
+				label.set_horizontalalignment('center')
+			elif 0 < angle < np.pi:
+				label.set_horizontalalignment('left')
+			else:
+				label.set_horizontalalignment('right')
+
+		ax.set_ylim(0, 1)
+		ax.set_rlabel_position(180 / num_vars)
+
+		ax.tick_params(colors='#222222')
+		ax.tick_params(axis='y', labelsize=8)
+		ax.grid(color='#AAAAAA')
+		ax.spines['polar'].set_color('#222222')
+		ax.set_facecolor('#FAFAFA')
+
+		ax.set_title('Metabolism in the medium', y=1.08, fontsize = 10, color = "blue")
+		fig
+		
+	# INTRACELLULAR METABOLISM: Radar plot
+
+	with right_column:
+		if time_sel != 0:
 
 
-	# Ensure radar goes from 0 to 1.
-	ax.set_ylim(0, 1)
-	# You can also set gridlines manually like this:
-	# ax.set_rgrids([20, 40, 60, 80, 100])
-
-	# Set position of y-labels (0-1) to be in the middle
-	# of the first two axes.
-	ax.set_rlabel_position(180 / num_vars)
+			df_sc1 = pd.read_csv("./data/df_sc1.csv")
+			labels = ['G418', '5-FU', '5-FUR', '5-FdUR', 'U', 'PSU', 'inosine',
+				'GSH', 'GSSG', 'glutamine']
 
 
-	# Add some custom styling.
-	# Change the color of the tick labels.
-	ax.tick_params(colors='#222222')
-	# Make the y-axis (0-1) labels smaller.
-	ax.tick_params(axis='y', labelsize=6)
-	# Change the color of the circular gridlines.
-	ax.grid(color='#AAAAAA')
-	# Change the color of the outermost gridline (the spine).
-	ax.spines['polar'].set_color('#222222')
-	# Change the background color inside the circle itself.
-	ax.set_facecolor('#FAFAFA')
+			values = df_sc1.loc[(df_sc1["samples"] == tr_sel) & (df_sc1["time"] == time_sel)].values.flatten().tolist()
+			# slice df to remove extra generated values
+			values = values[2:]
+			# Number of variables we're plotting
+			num_vars = len(labels)
 
-	# Add title.
-	#ax.set_title('Cell metabolic response', y=1.08, fontsize = 10, color = "blue")
+			# Split the circle into even parts and save the angles
+			# so we know where to put each axis.
+			angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+			values += values[:1]
+			angles += angles[:1]
 
-	fig
+			fig, ax = plt.subplots(figsize=(4, 4), subplot_kw=dict(polar=True))
+			# Draw the outline of our data.
+
+			ax.plot(angles, values, color='blue', linewidth=1)
+			# Fill it in.
+			ax.fill(angles, values, color='blue', alpha=0.1)
+			# Fix axis to go in the right order and start at 12 o'clock.
+			ax.set_theta_offset(np.pi / 2)
+			ax.set_theta_direction(-1)
+			# Draw axis lines for each angle and label.
+			ax.set_thetagrids(np.degrees(angles), labels)
+			# Go through labels and adjust alignment based on where
+			# it is in the circle.
+			for label, angle in zip(ax.get_xticklabels(), angles):
+				if angle in (0, np.pi):
+					label.set_horizontalalignment('center')
+				elif 0 < angle < np.pi:
+					label.set_horizontalalignment('left')
+				else:
+					label.set_horizontalalignment('right')
+
+
+			# Ensure radar goes from 0 to 1.
+			ax.set_ylim(0, 1)
+			#Can be set gridlines manually:
+			# ax.set_rgrids([20, 40, 60, 80, 100])
+
+			# Set position of y-labels (0-1) to be in the middle
+			# of the first two axes.
+			ax.set_rlabel_position(180 / num_vars)
+
+
+			# Add some custom styling.
+			# Change the color of the tick labels.
+			ax.tick_params(colors='#222222')
+			# Make the y-axis (0-1) labels smaller.
+			ax.tick_params(axis='y', labelsize=8)
+			# Change the color of the circular gridlines.
+			ax.grid(color='#AAAAAA')
+			# Change the color of the outermost gridline (the spine).
+			ax.spines['polar'].set_color('#222222')
+			# Change the background color inside the circle itself.
+			ax.set_facecolor('#FAFAFA')
+
+			# Add title.
+			ax.set_title('Metabolism in cells', y=1.08, fontsize = 10, color = "blue")
+
+			fig
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	# Beta Expander: SELECT EDA
 
-	df = pd.read_csv("c_met_final.csv")
+	df = pd.read_csv("./data/c_met_final.csv")
 	df = df.drop(["Unnamed: 0"], axis = 1)
 	df_var1 = df.drop(["samples", "time"], axis = 1)
 
 
-	with st.sidebar.beta_expander("Exploratory Data Analysis"):
+	with st.sidebar.expander("Exploratory Data Analysis"):
 		status_eda = st.radio("select EDA",("none", "correlation","predictive power score", 
 		"regression"))
 	if status_eda == "none":
@@ -162,7 +298,7 @@ def main():
 		st.error(" ")	
 
 	
-	with st.sidebar.beta_expander("Contact and acknowledgement"):
+	with st.sidebar.expander("Contact and acknowledgement"):
 		stc.html("<h4 style='color:rgb(0,0,250);'>Vladimir JN Bykov, MD PhD</h4>", height = 50)
 		stc.html("<a href = 'https://www.linkedin.com/in/vladimir-bykov-04912165/' target='_blank'>LinkedIn</a>", height = 30)	
 		stc.html("<a href= 'mailto: vlad.jnbykov@gmail.com'>Send E-mail</a>", height= 30)
