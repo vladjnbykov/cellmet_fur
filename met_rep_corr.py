@@ -11,6 +11,8 @@ import codecs
 import statsmodels
 from PIL import Image
 
+from palettable.colorbrewer.qualitative import Pastel1_7
+
 # wide screen layout
 st.set_page_config(layout="wide")
 
@@ -20,8 +22,8 @@ def render_html(file,height=700,width=700):
 	stc.html(page,width=width,height=height,scrolling=True)
 
 #st.title("Cellular metabolism in response to treatment with drugs")
-stc.html("<h1 style='color:blue;'>Cell metabolic response to treatment</h1>", height=80)
-stc.html("<h4 style='color:rgb(30,0,200);'>Overview, scaled data</h4>", height = 40)
+stc.html("<h1 style='color:blue; margin-top:0;'>Cell metabolic response to treatment</h1>", height=80)
+stc.html("<h3 style='color:rgb(30,0,200); margin-top:0;'>Metabolic profile</h4>", height = 40)
 
 #@st.cache
 def main():
@@ -47,7 +49,6 @@ def main():
 
 
 	# Slider 
-	# Numbers (Int/Float/Dates)
 	time_sel = st.sidebar.slider("Specify duration of treatment, days",0,3)
 
 	st.success("{} treatment for {} day(s)".format(status, time_sel))
@@ -137,8 +138,8 @@ def main():
 
 		fig, ax = plt.subplots(figsize=(4, 4), subplot_kw=dict(polar=True))
 
-		ax.plot(angles, values, color='blue', linewidth=1)
-		ax.fill(angles, values, color='blue', alpha=0.1)
+		ax.plot(angles, values, color='#47009E', linewidth=1)
+		ax.fill(angles, values, color='#47009E', alpha=0.1)
 		ax.set_theta_offset(np.pi / 2)
 		ax.set_theta_direction(-1)
 		ax.set_thetagrids(np.degrees(angles), labels)
@@ -160,7 +161,7 @@ def main():
 		ax.spines['polar'].set_color('#222222')
 		ax.set_facecolor('#FAFAFA')
 
-		ax.set_title('Metabolism in the medium', y=1.08, fontsize = 10, color = "blue")
+		ax.set_title('Metabolism in the medium', y=1.08, fontsize = 12, color = "#47009E")
 		fig
 		
 	# INTRACELLULAR METABOLISM: Radar plot
@@ -217,8 +218,6 @@ def main():
 			# of the first two axes.
 			ax.set_rlabel_position(180 / num_vars)
 
-
-			# Add some custom styling.
 			# Change the color of the tick labels.
 			ax.tick_params(colors='#222222')
 			# Make the y-axis (0-1) labels smaller.
@@ -231,14 +230,49 @@ def main():
 			ax.set_facecolor('#FAFAFA')
 
 			# Add title.
-			ax.set_title('Metabolism in cells', y=1.08, fontsize = 10, color = "blue")
-
+			ax.set_title('Metabolism in cells', y=1.08, fontsize = 12, color = "blue")
 			fig
 
-	
+	# RNA COMPOSITION: DOUGHNUT CHARTS
 
+	df_rna_ur = pd.read_csv('./data/ur_main_species_md.csv')
+	if tr_sel != 'PSU':
+		stc.html("<h3 style='color:rgb(30,0,200); margin-top:2px; margin-bottom:2px;'>RNA composition, main uridine species after 3 days of treatment</h4>", height = 40)
+		left_column, right_column = st.columns((1,1))
 
+		with left_column: 
+			# rRNA DATA
+			doughnut = plt.subplots(figsize = (2,2))
+			r_rna_sel = df_rna_ur.loc[(df_rna_ur["names"] == tr_sel) & (df_rna_ur["rna"] == 'rRNA'), ['uridine', 'pseudouridine', 'FUR']]
+			r_rna_sel = r_rna_sel.iloc[0]
+				
+			groups = ['U ' + str(round(r_rna_sel[0], 1)) +"%", 
+				'PSU ' + str(round(r_rna_sel[1], 1)) +"%", 
+				'5-FUR ' + str(round(r_rna_sel[2], 1)) +"%"]
 
+			my_circle=plt.Circle((0,0), 0.7, color='white')
+			plt.pie(r_rna_sel, labels=groups, colors=Pastel1_7.hex_colors, textprops={'fontsize': 5})
+			doughnut=plt.gcf()
+			doughnut.gca().add_artist(my_circle)
+			plt.title('rRNA', y = 0.4, fontsize = 10, color = "blue")
+			doughnut
+
+		with right_column: 
+			# mRNA DATA
+			doughnut1 = plt.subplots(figsize = (2,2))
+			m_rna_sel = df_rna_ur.loc[(df_rna_ur["names"] == tr_sel) & (df_rna_ur["rna"] == 'mRNA'), ['uridine', 'pseudouridine', 'FUR']]
+			m_rna_sel = m_rna_sel.iloc[0]
+				
+			groups = ['U ' + str(round(m_rna_sel[0], 1)) +"%", 
+				'PSU ' + str(round(m_rna_sel[1], 1)) +"%", 
+				'5-FUR ' + str(round(m_rna_sel[2], 1)) +"%"]
+
+			my_circle=plt.Circle((0,0), 0.7, color='white')
+			plt.pie(m_rna_sel, labels=groups, colors=Pastel1_7.hex_colors, textprops={'fontsize': 5})
+			doughnut1=plt.gcf()
+			doughnut1.gca().add_artist(my_circle)
+			plt.title('mRNA', y = 0.4, fontsize = 10, color = "blue")
+			doughnut1
 
 
 
